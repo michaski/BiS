@@ -55,6 +55,41 @@ SELECT first_name, last_name, work_time,
     ORDER BY work_time;
 
 /* 5 */
-SELECT SUM(salary) AS suma, ROUND(AVG(salary), 0) AS srednia
-    FROM employees join departments ON employees.department_id = departments.department_id
-    WHERE employees.department_id = (SELECT DISTINCT department_id FROM employees HAVING MIN(salary) > 5000);
+SELECT departments.department_name, SUM(salary) AS suma, ROUND(AVG(salary), 0) AS srednia
+    FROM employees e1 JOIN departments on e1.department_id = departments.department_id
+    WHERE 5000 < (SELECT MIN(salary) 
+                    FROM employees e2 JOIN departments on e2.department_id = departments.department_id 
+                    WHERE e1.department_id = e2.department_id)
+    GROUP BY departments.department_name;
+    
+/* 6 */
+SELECT employees.last_name, employees.department_id, departments.department_name, employees.job_id
+    FROM employees JOIN departments on employees.department_id = departments.department_id
+        JOIN locations on departments.location_id = locations.location_id
+    WHERE locations.city = 'Toronto';
+
+/* 7 */
+SELECT e1.first_name, e1.last_name, e2.first_name, e2.last_name
+    FROM employees e1 JOIN employees e2 on e1.department_id = e2.department_id
+    WHERE e1.first_name = 'Jennifer' AND e1.first_name != e2.first_name AND e1.last_name != e2.last_name
+    ORDER BY e1.employee_id;
+
+/* 8 */
+SELECT DISTINCT d1.department_id, d1.department_name
+    FROM departments d1
+    WHERE (SELECT COUNT(department_id) FROM employees WHERE department_id = d1.department_id) = 0;
+
+/* 10 */
+SELECT e1.first_name, e1.last_name, e1.job_id, departments.department_name, e1.salary, (SELECT grade FROM job_grades WHERE e1.salary BETWEEN min_salary AND max_salary) AS grade
+    FROM employees e1 JOIN departments ON e1.department_id = departments.department_id;
+
+/* 11 */
+SELECT first_name, last_name
+    FROM employees
+    WHERE salary > (SELECT AVG(salary) FROM employees)
+    ORDER BY salary;
+
+/* 12 */
+SELECT employee_id, first_name, last_name
+    FROM employees e1
+    WHERE 0 < (SELECT COUNT(employee_id) FROM employees WHERE department_id = e1.department_id AND last_name LIKE '%u%');
